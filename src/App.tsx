@@ -29,6 +29,7 @@ import { EditPicture } from "./components/EditPicture";
 import { ProgressExplainerModal } from "./components/ProgressExplainerModal";
 import { SearchModal } from "./components/SearchModal";
 import { DiscountExplainerModal } from "./components/DiscountExplainerModal";
+import i18n from "./i18n";
 
 const Stack = createStackNavigator<RootBottomTabParamList>();
 
@@ -164,6 +165,7 @@ function App() {
       </View>
     );
   }
+  i18n.init();
 
   return (
     <RecoilRoot>

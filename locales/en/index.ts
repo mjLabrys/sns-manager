@@ -1,9 +1,6 @@
 const HomeScreen = {
-  yourNamePower: {
-    line1: "Your",
-    line2: "Name",
-    line3: "Power",
-  },
+  yourNamePower:
+    "Your <underline>Name</underline>. Your <underline>Power</underline>.",
   seizeIdentity: "Seize your online identity.",
   searchPlaceholder: "Search for your name.sol",
   search: "Search",
@@ -11,6 +8,9 @@ const HomeScreen = {
 
 const Modal = {
   Error: {
+    common: {
+      msg: "Something went wrong",
+    },
     invalidDomain: "{{search}}.sol is not a valid domain",
   },
 };

@@ -14,8 +14,8 @@ import { profileScreenProp, searchResultScreenProp } from "../../types";
 import { trimTld, validate } from "../utils/validate";
 import { useModal } from "react-native-modalfy";
 import { isPubkey } from "../utils/publickey";
-import { useTranslation } from "react-i18next";
-import i18n from "../../i18n";
+import { useTranslation, Trans } from "react-i18next";
+import i18n from "../i18n";
 export function HomeScreen() {
   const { openModal } = useModal();
   const [search, setSearch] = useState("");
@@ -25,7 +25,9 @@ export function HomeScreen() {
 
   const { t } = useTranslation();
 
-  i18n.changeLanguage("en");
+  // useEffect(() => {
+  //   i18n.changeLanguage("kr");
+  // }, [i18n]);
 
   const handle = async () => {
     if (!search) return;
@@ -36,7 +38,9 @@ export function HomeScreen() {
       });
     }
     if (!validate(search)) {
-      return openModal("Error", { msg: `${search}.sol is not a valid domain` });
+      return openModal("Error", {
+        msg: `${t("Modal.Error.invalidDomain", { search })}`,
+      });
     }
     navigation.navigate("Search", {
       screen: "Search Result",
@@ -55,15 +59,12 @@ export function HomeScreen() {
       </View>
 
       <Text style={tw`text-3xl font-bold text-center text-blue-grey-900`}>
-        {t("HomeScreen.yourNamePower.line1")}{" "}
-        <Text style={tw`text-blue-700 underline`}>
-          {t("HomeScreen.yourNamePower.line2")}
-        </Text>
-        . {t("HomeScreen.yourNamePower.line1")}{" "}
-        <Text style={tw`text-blue-700 underline`}>
-          {t("HomeScreen.yourNamePower.line3")}
-        </Text>
-        .
+        <Trans
+          i18nKey="HomeScreen.yourNamePower"
+          components={{
+            underline: <Text style={tw`text-blue-700 underline`} />,
+          }}
+        />
       </Text>
       <Text style={tw`px-10 my-5 text-sm text-center text-blue-grey-500`}>
         {t("HomeScreen.seizeIdentity")}
