@@ -7,20 +7,25 @@ import {
   Platform,
 } from "react-native";
 import tw from "../utils/tailwind";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Screen } from "../components/Screen";
 import { useNavigation } from "@react-navigation/native";
 import { profileScreenProp, searchResultScreenProp } from "../../types";
 import { trimTld, validate } from "../utils/validate";
 import { useModal } from "react-native-modalfy";
 import { isPubkey } from "../utils/publickey";
-
+import { useTranslation } from "react-i18next";
+import i18n from "../../i18n";
 export function HomeScreen() {
   const { openModal } = useModal();
   const [search, setSearch] = useState("");
   const navigation = useNavigation<
     searchResultScreenProp | profileScreenProp
   >();
+
+  const { t } = useTranslation();
+
+  i18n.changeLanguage("en");
 
   const handle = async () => {
     if (!search) return;
@@ -50,11 +55,18 @@ export function HomeScreen() {
       </View>
 
       <Text style={tw`text-3xl font-bold text-center text-blue-grey-900`}>
-        Your <Text style={tw`text-blue-700 underline`}>Name</Text>. Your{" "}
-        <Text style={tw`text-blue-700 underline`}>Power</Text>.
+        {t("HomeScreen.yourNamePower.line1")}{" "}
+        <Text style={tw`text-blue-700 underline`}>
+          {t("HomeScreen.yourNamePower.line2")}
+        </Text>
+        . {t("HomeScreen.yourNamePower.line1")}{" "}
+        <Text style={tw`text-blue-700 underline`}>
+          {t("HomeScreen.yourNamePower.line3")}
+        </Text>
+        .
       </Text>
       <Text style={tw`px-10 my-5 text-sm text-center text-blue-grey-500`}>
-        Seize your online identity.
+        {t("HomeScreen.seizeIdentity")}
       </Text>
       <View
         style={tw`flex flex-row h-[71px] justify-center w-full items-center border-[1px] border-black/10 rounded-lg`}
@@ -66,7 +78,7 @@ export function HomeScreen() {
           ]}
           onChangeText={(newText) => setSearch(newText)}
           value={search}
-          placeholder="Search for your name.sol"
+          placeholder={t("HomeScreen.searchPlaceholder").toString()}
           placeholderTextColor="#BCCCDC"
           onKeyPress={(e) => {
             if (e.nativeEvent.key === "Enter") {
@@ -79,7 +91,9 @@ export function HomeScreen() {
           onPress={handle}
           style={tw`bg-blue-900 w-[30%] h-[72px] rounded-tr-lg rounded-br-lg flex items-center justify-center`}
         >
-          <Text style={tw`text-lg font-bold text-white`}>Search</Text>
+          <Text style={tw`text-lg font-bold text-white`}>
+            {t("HomeScreen.search")}
+          </Text>
         </TouchableOpacity>
       </View>
     </Screen>
