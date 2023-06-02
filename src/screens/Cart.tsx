@@ -16,8 +16,8 @@ import { FIDA_MINT, tokenList } from "../utils/tokens/popular-tokens";
 import { priceFromLength } from "../utils/price/price-from-length";
 import { usePyth } from "../hooks/usePyth";
 import { Feather } from "@expo/vector-icons";
-import { registerDomainName } from "@bonfida/spl-name-service";
-import { usePublicKeys, useSolanaConnection } from "../hooks/xnft-hooks";
+import { REFERRERS, registerDomainName } from "@bonfida/spl-name-service";
+import { useSolanaConnection } from "../hooks/xnft-hooks";
 import { NATIVE_MINT, getAssociatedTokenAddressSync } from "@solana/spl-token";
 import {
   Connection,
@@ -31,6 +31,8 @@ import { chunkIx } from "../utils/tx/chunk-tx";
 import { useModal } from "react-native-modalfy";
 import { OrderSummary } from "../components/OrderSummary";
 import { Trans } from "@lingui/macro";
+import { useWallet } from "../hooks/useWallet";
+import { referrerState } from "../atoms/referrer";
 
 const checkEnoughFunds = async (
   connection: Connection,
@@ -45,8 +47,9 @@ const checkEnoughFunds = async (
 };
 
 export const Cart = () => {
+  const [referrer] = useRecoilState(referrerState);
   const connection = useSolanaConnection();
-  const publicKeys = usePublicKeys();
+  const { publicKey, signAllTransactions, connected, setVisible } = useWallet();
   const [loading, setLoading] = useState(false);
   const [cart, setCart] = useRecoilState(cartState);
   const pyth = usePyth();
@@ -64,8 +67,7 @@ export const Cart = () => {
   const total = totalUsd / (price || 1);
 
   const handle = async () => {
-    const publicKey = publicKeys.get("solana");
-    if (!connection || !publicKey) return;
+    if (!connection || !publicKey || !signAllTransactions) return;
     if (
       !(await checkEnoughFunds(
         connection,
@@ -84,7 +86,6 @@ export const Cart = () => {
       const mintKey = new PublicKey(mint);
       const space = 1_000;
       const ata = getAssociatedTokenAddressSync(mintKey, buyer);
-
       for (let d of cart) {
         const [, ix] = await registerDomainName(
           connection,
@@ -92,7 +93,8 @@ export const Cart = () => {
           space,
           buyer,
           ata,
-          mintKey
+          mintKey,
+          referrer ? REFERRERS[referrer] : undefined
         );
         ixs.push(...ix);
       }
@@ -117,7 +119,7 @@ export const Cart = () => {
         e.recentBlockhash = blockhash;
       });
 
-      txs = await window.xnft.solana.signAllTransactions(txs);
+      txs = await signAllTransactions(txs);
       for (let tx of txs) {
         const sig = await connection.sendRawTransaction(tx.serialize());
         await connection.confirmTransaction(sig);
@@ -218,7 +220,7 @@ export const Cart = () => {
 
         <View style={tw`w-full mt-4`}>
           <TouchableOpacity
-            onPress={handle}
+            onPress={connected ? handle : () => setVisible(true)}
             disabled={loading || cart.length === 0}
             style={[
               tw`bg-blue-900 h-[50px] rounded-lg flex items-center justify-center flex-row`,
